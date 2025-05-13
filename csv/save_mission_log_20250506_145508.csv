@@ -1,0 +1,10 @@
+start,goal,send_goal,planner,engage,driving,reach_goal,ready,mission,path_approved,start_time,finish_time
+D04S,D18A,True,True,True,False,True,True,True,False,2025-05-06 14:55:09.390810,2025-05-06 14:56:54.341170
+D04S,D18A,True,True,True,False,True,True,0,False,2025-05-06 14:55:09.390810,2025-05-06 14:56:54.341170
+D04S,D18A,True,True,True,False,True,True,,False,2025-05-06 14:55:09.390810,2025-05-06 14:56:54.341170
+D18A,D06A,True,True,True,False,True,True,True,False,2025-05-06 14:56:54.442752,2025-05-06 15:02:54.245647
+D18A,D06A,True,True,True,False,True,True,0,False,2025-05-06 14:56:54.442752,2025-05-06 15:02:54.245647
+D18A,D06A,True,True,True,False,True,True,,False,2025-05-06 14:56:54.442752,2025-05-06 15:02:54.245647
+D06A,D19S,True,True,True,False,True,True,True,False,2025-05-06 15:02:54.346357,2025-05-06 15:07:09.644915
+D06A,D19S,True,True,True,False,True,True,0,False,2025-05-06 15:02:54.346357,2025-05-06 15:07:09.644915
+D06A,D19S,True,True,True,False,True,True,,False,2025-05-06 15:02:54.346357,2025-05-06 15:07:09.644915

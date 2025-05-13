@@ -1,0 +1,4 @@
+round,start,goal,send_goal,planner,engage,driving,reach_goal,ready,mission,path_approved,start_time,finish_time
+1,D03S,D06A,True,True,True,True,True,True,True,False,2025_05_07__09_29_16_884567,2025_05_07__09_32_12_443345
+1,D03S,D06A,True,True,True,True,True,True,0,False,2025_05_07__09_29_16_884567,2025_05_07__09_32_12_443345
+1,D03S,D06A,True,True,True,True,True,True,,False,2025_05_07__09_29_16_884567,2025_05_07__09_32_12_443345
