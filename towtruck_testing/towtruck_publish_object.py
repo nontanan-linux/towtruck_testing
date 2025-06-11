@@ -27,7 +27,7 @@ class TrackedObjectsPublisher(Node):
             "payload": [
                 {
                 "name": "AGV1",
-                "ip_address": "192.168.1.134",
+                "ip_address": "192.168.1.29",
                 "port": "5000",
                 "mission_id": None,
                 "state": 0,

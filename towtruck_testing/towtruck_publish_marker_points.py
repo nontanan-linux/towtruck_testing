@@ -11,17 +11,15 @@ class MultiMarkerPublisher(Node):
         self.declare_parameter("goalpoints_csv", '~/autoware.bg2/data/BG/GoalPoints.csv')
         self.declare_parameter("hornpoints_csv", '~/autoware.bg2/data/BG/HornPoints.csv')
         self.declare_parameter("update_points", False)
-        self.declare_parameter("publish_horns_point", False)
         self.goalpoints_csv = self.get_parameter("goalpoints_csv").get_parameter_value().string_value
         self.hornpoints_csv = self.get_parameter("hornpoints_csv").get_parameter_value().string_value
         self.update_points = self.get_parameter("update_points").get_parameter_value().bool_value
-        self.publish_horns_points = self.get_parameter("publish_horns_point").get_parameter_value().bool_value
         self.goalpoints_marker = GoalPointsMarkPublisher(csv_path=self.goalpoints_csv)
         self.hornpoints_marker = HornPointsMarkPublisher(csv_path=self.hornpoints_csv)
         self.goalpoints_publisher = self.create_publisher(MarkerArray, 'visualization/marker/goalpoints', 10)
         self.hornpoints_publisher = self.create_publisher(MarkerArray, 'visualization/marker/hornpoints', 10)
         if self.update_points:
-            self.timer = self.create_timer(1.0, self.publish_markers)
+            self.timer = self.create_timer(1.0, self.publish_markers)  # Publish every second
         else:
             self.goalpoints_array = self.goalpoints_marker.get_marker_array()
             self.hornpoints_array = self.hornpoints_marker.get_marker_array()
@@ -33,8 +31,7 @@ class MultiMarkerPublisher(Node):
             self.goalpoints_array = self.goalpoints_marker.get_marker_array()
             self.hornpoints_array = self.hornpoints_marker.get_marker_array()
             self.goalpoints_publisher.publish(self.goalpoints_array)
-            if self.publish_horns_points:
-                self.hornpoints_publisher.publish(self.hornpoints_array)
+            self.hornpoints_publisher.publish(self.hornpoints_array)
         except Exception as error:
             self.get_logger().fatal(f"Publish Points Error: {error}")
 

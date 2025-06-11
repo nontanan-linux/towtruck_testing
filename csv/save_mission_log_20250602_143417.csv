@@ -1,0 +1,7 @@
+round,start,goal,send_goal,planner,engage,driving,reach_goal,round_status,ready,mission,path_approved,start_time,finish_time
+1,H02S,P07S,True,True,True,True,True,,True,True,False,2025_06_02__14_34_17_605178,2025_06_02__14_42_35_097257
+1,H02S,P07S,True,True,True,True,True,,True,0,False,2025_06_02__14_34_17_605178,2025_06_02__14_42_35_097257
+1,H02S,P07S,True,True,True,True,True,,True,,False,2025_06_02__14_34_17_605178,2025_06_02__14_42_35_097257
+2,D18S,D16S,True,True,True,True,True,,True,True,False,2025_06_02__14_42_35_200777,2025_06_02__14_50_07_196308
+2,D18S,D16S,True,True,True,True,True,,True,0,False,2025_06_02__14_42_35_200777,2025_06_02__14_50_07_196308
+2,D18S,D16S,True,True,True,True,True,,True,,False,2025_06_02__14_42_35_200777,2025_06_02__14_50_07_196308

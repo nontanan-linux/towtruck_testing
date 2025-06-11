@@ -40,7 +40,7 @@ class PathWithLaneIDSubscriber(Node):
 		self.declare_parameter("goal_topic", "/planning/mission_planning/goal")
 		self.declare_parameter("path_topic", "/planning/scenario_planning/lane_driving/behavior_planning/path")
 		self.declare_parameter("path_lane_topic", "/planning/scenario_planning/lane_driving/behavior_planning/path_with_lane_id")
-		self.declare_parameter("save_picture_path", "/home/nontanan/ros2_ws/src/towtruck_testing/towtruck_testing/pict/06062025")
+		self.declare_parameter("save_picture_path", "/home/nontanan/ros2_ws/src/towtruck_testing/towtruck_testing/pict/21052025")
 		self.simulation = self.get_parameter("simulation").get_parameter_value().bool_value
 		self.csv_goal_path = self.get_parameter("csv_goal_path").get_parameter_value().string_value
 		self.initialpose_topic = self.get_parameter("initialpose_topic").get_parameter_value().string_value
@@ -458,12 +458,12 @@ def main(args=None):
 # 	node.destroy_node()
 # 	rclpy.shutdown()
 
-def segment_all(args=None):
-	rclpy.init(args=args)
-	node = PathWithLaneIDSubscriber()
-	node.segment_all_path()
-	node.destroy_node()
-	rclpy.shutdown()
+# def segment_all(args=None):
+# 	rclpy.init(args=args)
+# 	node = PathWithLaneIDSubscriber()
+# 	node.segment_all_path()
+# 	node.destroy_node()
+# 	rclpy.shutdown()
 
 if __name__ == '__main__':
 	main()

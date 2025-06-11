@@ -13,10 +13,10 @@ import requests,json
 class DijsktraCalculation(Node):
 	def __init__(self):
 		super().__init__('Dijkstra_calc_node')
-		# self.dijk_subscription = self.create_subscription(String, 'dijkstra/request', self.dijk_callback, 10)
-		# self.dijk_publisher = self.create_publisher(String, 'dijkstra/path', 10)
-		# self.state_publisher = self.create_publisher(RobotState, '/mission_control/robot_state', 10)
-		# self.overtake_client = self.create_client(SetRoutePointsWithId, "/planning/mission_planning/set_route_points_with_id")
+		self.dijk_subscription = self.create_subscription(String, 'dijkstra/request', self.dijk_callback, 10)
+		self.dijk_publisher = self.create_publisher(String, 'dijkstra/path', 10)
+		self.state_publisher = self.create_publisher(RobotState, '/mission_control/robot_state', 10)
+		self.overtake_client = self.create_client(SetRoutePointsWithId, "/planning/mission_planning/set_route_points_with_id")
 		self.edges = defaultdict(list)
 		self.robot_msgs = RobotState()
 		self.weights = {}

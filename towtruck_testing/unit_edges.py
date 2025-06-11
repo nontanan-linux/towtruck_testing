@@ -26,8 +26,8 @@ customer_uni_edges = [
 			('D16S','D2201N',1),
 			('D16S','P01S',1),
 			('P01S','P02S',1),
-			('D21S','P03S',1),
-			('D15S','P03S',1),
+			('D21S','P02S',1),
+			('D15S','P02S',1),
 			('P02S','P03S',1),
 			('P03S','P05S',1),
 			('P05S','P0501N',1),
@@ -115,7 +115,7 @@ customer_uni_edges = [
 		]
 
 def main():
-    save_path = "/home/nontanan/ros2_ws/src/towtruck_testing/towtruck_testing/pict/06062025/segment_5m"
+    save_path = "/home/nontanan/ros2_ws/src/towtruck_testing/towtruck_testing/pict/21052025/segment_5m"
     result = subprocess.run(f'ls {save_path} | grep ".csv"', shell=True, stdout=subprocess.PIPE, text=True)
     csv_files = result.stdout.strip().split('\n') if result.stdout else []
     csv_files = [f for f in csv_files if f.strip()]

@@ -1,0 +1,64 @@
+import networkx as nx
+import matplotlib.pyplot as plt
+import pandas as pd
+
+class DijsktraGrapth():
+    def __init__(self):
+        self.csv_goal_path = '/home/nontanan/autoware.bg2/data/BG/GoalPoints.csv'
+        self.station_data = pd.read_csv(self.csv_goal_path)
+        self.node_positions = self.get_node_position(self.station_data)
+        
+        self.uni_edges = [
+            ('H01S','H01N',1), ('H02S','H01N',1), ('H01N','H02N',1),
+            ('H02N','H03N',1), ('H03N','D15S',1), ('H03N','P0503N',1),
+            ('D15S','D21S',1), ('D21S','D1501N',1), ('D15S','D1501N',1),
+            ('D1501N','D22S',1), ('D22S','D2201N',1), ('D22S','P01S',1),
+            ('D1501N','D2201N',1), ('D1501N','P01S',1), ('D2201N','D2202N',1),
+            ('D2202N','P06S',1), ('P06S','P0601N',1), ('P0601N','D16S',1),
+            ('D16S','D2201N',1), ('D16S','D1601N',1), ('D1601N','P01S',1),
+            ('P01S','P02S',1), ('D21S','P02S',1), ('D15S','P02S',1),
+            ('P02S','P03S',1), ('P03S','P05S',1), ('P05S','P0501N',1),
+            ('P0501N','P0502N',1), ('P0502N','H01S',1), ('P0502N','H02S',1),
+            ('P05S','P0503N',1), ('P0503N','P0504N',1), ('P0504N','D01S',1),
+            ('P0504N','D11A',1), ('P0504N','D11S',1), ('D01S','D17A',1),
+            ('D01S','D17S',1), ('D17A','P0501N',1), ('D17S','P0501N',1),
+            ('D17S','H03N',1), ('D17A','H03N',1), ('D01S','D02S',1),
+            ('D02S','D03S',1), ('D03S','D0301N',1), ('D0301N','D04A',1),
+            ('D0301N','D04S',1), ('D04A','D05A',1), ('D04A','D05S',1),
+            ('D04S','D05A',1), ('D04S','D05S',1), ('D05A','D06A',1),
+            ('D05A','D06S',1), ('D05S','D06A',1), ('D05S','D06S',1),
+            ('D06A','D0601N',1), ('D06S','D0601N',1), ('D0601N','D11S',1),
+            ('D0601N','D11A',1), ('D11A','D12A',1), ('D11A','D12S',1),
+            ('D11S','D12A',1), ('D11S','D12S',1), ('D12A','D1201N',1),
+            ('D12S','D1201N',1), ('D04A','D07A',1), ('D04A','D07S',1),
+            ('D04S','D07A',1), ('D04S','D07S',1), ('D07A','D08A',1),
+            ('D07A','D08S',1), ('D07S','D08A',1), ('D07S','D08S',1),
+            ('D08A','D0801N',1), ('D08S','D0801N',1), ('D0801N','D09A',1),
+            ('D0801N','D09S',1), ('D09A','D10A',1), ('D09A','D10S',1),
+            ('D09S','D10A',1), ('D09S','D10S',1), ('D10A','D1001N',1),
+            ('D10S','D1001N',1), ('D1001N','D1201N',1), ('D1201N','P0401N',1),
+            ('P0401N','D18A',1), ('P0401N','D18S',1), ('D18A','D19A',1),
+            ('D18A','D19S',1), ('D18S','D19A',1), ('D18S','D19S',1),
+            ('D19A','D1901N',1), ('D19S','D1901N',1), ('D1901N','D15S',1),
+            ('D1201N','P04S',1), ('P04S','D13S',1), ('D13S','D14S',1),
+            ('D14S','D1401N',1), ('D1401N','D1402N',1), ('D1402N','D20S',1),
+            ('D20S','D15S',1),]
+    
+    def get_node_position(self, node_data):
+        return {row['name']: (row['x'], row['y']) for _, row in node_data.iterrows()}
+
+    def main(self):
+        G = nx.Graph()
+        for edge in self.uni_edges:
+            G.add_edge(edge[0], edge[1], weight=edge[2])
+        plt.figure(figsize=(15, 10))
+        nx.draw(G, pos=self.node_positions, with_labels=True, node_size=300, font_size=8, edge_color='gray')
+        plt.title("Dijkstra Node Graph with Coordinates")
+        plt.show()
+
+def main():
+    dijsktra_graph = DijsktraGrapth()
+    dijsktra_graph.main()
+
+if __name__ == '__main__':
+    main()

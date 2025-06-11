@@ -1,15 +1,13 @@
-#!/usr/bin/env python3
-import matplotlib.pyplot as plt
-import pandas as pd
-import numpy as np
 import cv2
-import os
-import datetime
-import csv
+import matplotlib.pyplot as plt
 from matplotlib.legend_handler import HandlerBase
 from matplotlib.patches import Patch, Rectangle
 from matplotlib.lines import Line2D
-from unit_edges import customer_uni_edges
+import pandas as pd
+import numpy as np
+import os
+import datetime
+import csv
 
 class HandlerTextBox(HandlerBase):
     def __init__(self, text, **kw):
@@ -30,27 +28,21 @@ class HandlerTextBox(HandlerBase):
                        transform=trans)
         return [box, txt]
 
-class MapImageOutline:
+class StationOutline:
 	def __init__(self,):
 		self.compare_img_path = '/home/nontanan/Pictures/bg_map-compare.png'
 		self.map_rviz_path = '/home/nontanan/Pictures/bg_map-rviz.png'
 		self.map_layout_path = '/home/nontanan/Pictures/bg_map-img.png'
 		self.goalpoints_path = '/home/nontanan/ros2_ws/src/towtruck_testing/csv/GoalPoints.csv'
-		self.hornpoints_path = '~/autoware.bg2/data/BG/HornPoints.csv'
-		self.csv_directory = '/home/nontanan/ros2_ws/src/towtruck_testing/resource/2025-06-09'
+		# self.hornpoints_path = '/home/nontanan/ros2_ws/src/towtruck_testing/csv/HornPoints.csv'
+		self.hornpoints_path = '/home/nontanan/ros2_ws/src/towtruck_testing/csv/HornPointsStamp_20250527_160553.csv'
+		self.csv_directory = '/home/nontanan/ros2_ws/src/towtruck_testing/towtruck_testing/pict/21052025'
 		self.save_image = False
-		self.horn_info = False
 		self.segment_dir = self.csv_directory #os.path.join(self.csv_directory, 'segment_5m')
 		self.map_image = cv2.imread(self.compare_img_path)
 		self.rviz_image = cv2.imread(self.map_rviz_path)
 		self.layout_image = cv2.imread(self.map_layout_path)
 		self.layout_image = cv2.cvtColor(self.layout_image, cv2.COLOR_BGR2RGB)
-		self.hornpoints_color = (255/255, 255/255, 0.0/255)
-		self.goalpoints_color = (0.0/255, 255/255, 0.0/255)
-		self.trajectory_color = (255/255, 0.0/255, 0.0/125)
-		self.pix_dist = [[1207,577], [1207,383], [1225,232], [1227,419]]
-		self.map_dist = [[561.25,217.58], [561.55,179.20],[568.08,108.73],[569.78,191.93]]
-		self.map_yaw = -0.09
 		if self.map_image is None:
 			raise FileNotFoundError(f"Not found img {self.compare_img_path}")
 		if self.map_rviz_path is None:
@@ -60,11 +52,10 @@ class MapImageOutline:
 		self.map_image = cv2.cvtColor(self.map_image, cv2.COLOR_BGR2RGB)
 		self.img_height, self.img_width, _ = self.map_image.shape
 		# self.fig = plt.figure(figsize=(16, 9)) 
+		self.pix_dist = [[1207,577], [1207,383], [1225,232], [1227,419]]
+		self.map_dist = [[561.25,217.58], [561.55,179.20],[568.08,108.73],[569.78,191.93]]
+		self.map_yaw = -0.09
 		self.coordinate = [0.0,0.0,0.0]
-		self.legend_elements = [
-			Line2D([0], [0], color=self.trajectory_color, lw=2, label='Trajectory path of the vehicle'),
-			Line2D([0], [0], marker='o', color='red', label='Goalpoints', markerfacecolor=self.goalpoints_color, markersize=6),
-			Rectangle((0,0),1,1, label='Station Name')] # Patch(facecolor=(1.0, 0.0, 0.5), edgecolor='none', label='Station Name')
 		self.x = self.coordinate[0]*np.cos(self.map_yaw) - self.coordinate[1]*-np.sin(self.map_yaw)
 		self.y = self.coordinate[0]*-np.sin(self.map_yaw) + self.coordinate[1]*-np.cos(self.map_yaw)  
 		self.offset = {"x": 835.0, "y": 272.0}
@@ -101,10 +92,10 @@ class MapImageOutline:
 	def get_hornpoints(self, path):
 		try:
 			df = pd.read_csv(path)
-			if not {"station", "node", "x", "y", "z", "qx", "qy", "qz", "qw"}.issubset(df.columns):
+			if not {"node", "x", "y"}.issubset(df.columns):
 				raise ValueError("CSV file must contain 'name', 'x', and 'y' columns")
 			df['x'], df['y'] = self.transfrom(position=[df['x'], df['y']])
-			return df[["station", "node", "x", "y", "z", "qx", "qy", "qz", "qw"]].values
+			return df[["node", "x", "y"]].values
 		except Exception as get_horn_err:
 			print(f'Get Horn Points Error: {get_horn_err}')
 			return None
@@ -118,6 +109,9 @@ class MapImageOutline:
 
 	def plot_map(self, target_map, target_goalpoints, target_hornpoints, trajectory_csv_path):
 		plt.imshow(target_map)
+		hornpoints_color = (255/255, 255/255, 0.0/255)
+		goalpoints_color = (0.0/255, 255/255, 0.0/255)
+		trajectory_color = (255/255, 0.0/255, 0.0/125)
 		for path_file in trajectory_csv_path:
 			full_path = os.path.join(self.segment_dir, path_file)
 			path = pd.read_csv(full_path)
@@ -126,11 +120,9 @@ class MapImageOutline:
 				x, y = self.transfrom(position=[path['x'][idx], path['y'][idx]])
 				x_list.append(x)
 				y_list.append(y)
-			plt.plot(x_list, y_list, c=self.trajectory_color, linewidth=1.2, zorder=1)
-		if self.horn_info:
-			for i, (station, node, x, y, z, qx, qy, qz, qw) in enumerate(target_hornpoints):
-				plt.scatter(x, y, c=self.hornpoints_color, s=12, label="Hornpoints" if i == 0 else "", zorder=2)
-			self.legend_elements.append(Line2D([0], [0], marker='o', color='red', label='Hornpoints', markerfacecolor=self.hornpoints_color, markersize=6))
+			plt.plot(x_list, y_list, c=trajectory_color, linewidth=1.2, zorder=1)
+		for i, (station, node, x, y, z, qx, qy, qz, qw) in enumerate(target_hornpoints):
+			plt.scatter(x, y, c=hornpoints_color, s=12, label="Hornpoints" if i == 0 else "", zorder=2)
 		for i, (name, x, y, position) in enumerate(target_goalpoints):
 			text_x, text_y = x, y
 			if position == 'under':
@@ -151,12 +143,18 @@ class MapImageOutline:
 				text_y += 10
 				text_x += 50
 			plt.text(text_x, text_y, name,fontsize=6, color='white', ha='center', fontweight='bold',
-				bbox=dict(facecolor=(255/255, 0.0/255, 127/255), edgecolor='none', boxstyle='round,pad=0.2'))
-			plt.scatter(x, y, c=self.goalpoints_color, s=12,label="Goalpoints" if i == 0 else "", zorder=2)
-		print(f'Type of element: {type(self.legend_elements)}')
+				bbox=dict(facecolor=(255/255, 0.0/255, 127/255), edgecolor='none', boxstyle='round,pad=0.2')
+			)
+			plt.scatter(x, y, c=goalpoints_color, s=12,label="Goalpoints" if i == 0 else "", zorder=2)
+		legend_elements = [
+			Line2D([0], [0], color=trajectory_color, lw=2, label='Trajectory path of the vehicle'),
+			Line2D([0], [0], marker='o', color='red', label='Hornpoints', markerfacecolor=hornpoints_color, markersize=6),
+			Line2D([0], [0], marker='o', color='red', label='Goalpoints', markerfacecolor=goalpoints_color, markersize=6),
+			Rectangle((0,0),1,1, label='Station Name')
+			# Patch(facecolor=(1.0, 0.0, 0.5), edgecolor='none', label='Station Name')
+		]
 		plt.axis('off')
-		plt.grid('off')
-		plt.legend(handles=self.legend_elements,handler_map={self.legend_elements[-1]: HandlerTextBox("D01S")},loc='upper right')
+		plt.legend(handles=legend_elements,handler_map={legend_elements[-1]: HandlerTextBox("D01S")},loc='upper right')
 		# plt.subplots_adjust(left=0.05, bottom=0.05, right=1.0, top=1.0)
 		# mng = plt.get_current_fig_manager()
 		# mng.full_screen_toggle()
@@ -237,18 +235,12 @@ class MapImageOutline:
 
 
 def main():
-	towtruck_map_outline = MapImageOutline()
+	so = StationOutline()
 	# so.plot_map(target_map=so.map_image)
 	# so.plot_map(target_map=so.rviz_image)
-	towtruck_map_outline.plot_map(target_map=towtruck_map_outline.layout_image, 
-				target_goalpoints=towtruck_map_outline.goalpoints,
-				target_hornpoints=towtruck_map_outline.hornpoints,
-				trajectory_csv_path=towtruck_map_outline.csv_path)
+	so.plot_map(target_map=so.layout_image, target_goalpoints=so.goalpoints, target_hornpoints=so.hornpoints, trajectory_csv_path=so.csv_path)
 	# so.plot_rviz_map()
 	# so.plot_layout_map()
 
 if __name__ == '__main__':
-	# main()
-	print(f'type of edges: {customer_uni_edges}')
-	for idx in range(0, len(customer_uni_edges)):
-		print(f'no {idx+1}, start: {customer_uni_edges[idx][0]}, goal: {customer_uni_edges[idx][1]}')
+	main()

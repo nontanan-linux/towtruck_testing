@@ -3,27 +3,23 @@ import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionServer
 from nav_msgs.msg import Odometry
-from geometry_msgs.msg import PoseStamped
 from autoware_auto_vehicle_msgs.msg import Engage
 from autoware_auto_system_msgs.msg import AutowareState
 from autoware_adapi_v1_msgs.srv import ChangeOperationMode, SetRoutePointsWithId 
 from tf2_ros.buffer import Buffer
 from tf2_ros.transform_listener import TransformListener
-from tier4_debug_msgs.msg import Float32Stamped
-from towtruck_msgs.msg import RobotState, HornCmd
-# from towtruck_map_image import MapImageOutline
 import os
 import time
 import math
 import pandas as pd
 import numpy as np
 import random
+import requests
 import asyncio
 import tf_transformations
 from collections import defaultdict 
 from itertools import permutations
 from dijsktra_calc import DijsktraCalculation
-from unit_edges import customer_uni_edges
 from enum import Enum
 from datetime import datetime
 import requests,json
@@ -40,38 +36,23 @@ class AutowareStateValue(Enum):
 class TestRoutePointsClient(Node):
 	def __init__(self):
 		super().__init__('TestRoutePointsWithID')
-		self.declare_parameter("csv_goal_path", "~/autoware.bg2/data/BG/GoalPoints.csv")
-		self.declare_parameter("csv_horn_path", "~/autoware.bg2/data/BG/HornPoints.csv")
-		# self.declare_parameter("csv_station_path", '/home/nontanan/ros2_ws/src/towtruck_testing/csv/Station.csv')
+		self.declare_parameter("csv_goal_path", "/home/nontanan/autoware.bg2/data/BG/GoalPoints.csv")
+		self.declare_parameter("csv_station_path", '/home/nontanan/ros2_ws/src/towtruck_testing/csv/Station.csv')
 		self.declare_parameter("save_log_mission", '/home/nontanan/ros2_ws/src/towtruck_testing/csv/')
-		self.declare_parameter("robot_state_topic", "/robot_state")
-		self.declare_parameter("horn_cmd_topic", "/horn_cmd")
-		self.declare_parameter("debug_info", True)
 		self.declare_parameter("simulation", False)
 		self.declare_parameter("save_log_to_csv", True)
 		self.simulation = self.get_parameter("simulation").get_parameter_value().bool_value
 		self.csv_goal_path = self.get_parameter("csv_goal_path").get_parameter_value().string_value
+		self.stations_path = self.get_parameter("csv_station_path").get_parameter_value().string_value
 		self.save_log_path = self.get_parameter("save_log_mission").get_parameter_value().string_value
-		# self.stations_path = self.get_parameter("csv_station_path").get_parameter_value().string_value
-		# self.csv_goal_path = os.path.join(os.getcwd(), self.csv_goal_path)
-		# self.csv_save_log = self.generate_log_csv(save_path=self.save_log_path)
+		self.csv_goal_path = os.path.join(os.getcwd(), self.csv_goal_path)
+		self.csv_save_log = self.generate_log_csv(save_path=self.save_log_path)
 		self.goal_data_frame = pd.read_csv(self.csv_goal_path)
-		# self.stations_frame = pd.read_csv(self.stations_path)
-		self.csv_horn_path = os.path.expanduser(self.get_parameter("csv_horn_path").get_parameter_value().string_value)
-		self.horn_save_file = os.path.join(
-			self.get_parameter("save_log_mission").get_parameter_value().string_value,
-			f'HornPointsStamp_{datetime.now().strftime("%Y%m%d_%H%M%S")}.csv')
+		self.stations_frame = pd.read_csv(self.stations_path)
 		self.kinematic = Odometry()
 		self.engage_cmd = Engage()
 		self.engage_msg = Engage()
 		self.autoware_state = AutowareState()
-		# self.points_outline = MapImageOutline()
-		self.robot_pose = PoseStamped()
-		self.robot_kinematic = Odometry()
-		self.robot_state = RobotState()
-		self.horn_cmd = HornCmd()
-		self.ndt_score = Float32Stamped()
-		self.hornpoints = []
 		self.current_node = None
 		self.start_point = self.CallNearestNode()
 		self.goal_point = 'P01S'
@@ -118,8 +99,7 @@ class TestRoutePointsClient(Node):
 		return self.CallNearestNode()
 	
 	def get_station(self):
-		return pd.read_csv(self.csv_goal_path).query('node_type == "station"')['name'].to_list()
-		# return pd.read_csv(self.stations_path)['name'].to_list()
+		return pd.read_csv(self.stations_path)['name'].to_list()
 	
 	def autoware_engage_callback(self, msg):
 		self.engage_msg = msg
@@ -332,16 +312,6 @@ class TestRoutePointsClient(Node):
 		except KeyError:
 			print("Error: Missing x or y coordinate in goal_pose.")
 			return float('inf')
-	
-	def test(self):
-		print(f'Edges: {customer_uni_edges}')
-
-def test():
-	rclpy.init()
-	node = TestRoutePointsClient()
-	node.test()
-	node.destroy_node()
-	rclpy.shutdown()
 
 def main():
 	rclpy.init()
@@ -355,5 +325,4 @@ def main():
 		rclpy.shutdown()
 
 if __name__ == '__main__':
-	# main()
-	test()
+	main()
