@@ -1,0 +1,5 @@
+/**:
+  ros__parameters:
+    # 0:UTM, 1:MGRS, 2:PLANE, 3:LocalCartesianWGS84, 4:LocalCartesianUTM
+    coordinate_system: 3
+    mgrs_zone: 47PPR
