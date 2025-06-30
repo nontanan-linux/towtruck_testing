@@ -34,9 +34,10 @@ class StationOutline:
 		self.map_rviz_path = '/home/nontanan/Pictures/bg_map-rviz.png'
 		self.map_layout_path = '/home/nontanan/Pictures/bg_map-img.png'
 		self.goalpoints_path = '/home/nontanan/ros2_ws/src/towtruck_testing/csv/GoalPoints.csv'
-		# self.hornpoints_path = '/home/nontanan/ros2_ws/src/towtruck_testing/csv/HornPoints.csv'
-		self.hornpoints_path = '/home/nontanan/ros2_ws/src/towtruck_testing/csv/HornPointsStamp_20250527_160553.csv'
-		self.csv_directory = '/home/nontanan/ros2_ws/src/towtruck_testing/towtruck_testing/pict/21052025'
+		self.hornpoints_path = '/home/nontanan/ros2_ws/src/towtruck_testing/csv/HornPoints.csv'
+		self.hornpoints_path = '/home/nontanan/autoware.bg2/data/BG/HornPoints.csv'
+		# self.hornpoints_path = '/home/nontanan/ros2_ws/src/towtruck_testing/csv/HornPointsStamp_20250527_160553.csv'
+		self.csv_directory = '/home/nontanan/ros2_ws/src/towtruck_testing/resource/trajectory/2025-06-13 10:51:14'
 		self.save_image = False
 		self.segment_dir = self.csv_directory #os.path.join(self.csv_directory, 'segment_5m')
 		self.map_image = cv2.imread(self.compare_img_path)
@@ -95,7 +96,7 @@ class StationOutline:
 			if not {"node", "x", "y"}.issubset(df.columns):
 				raise ValueError("CSV file must contain 'name', 'x', and 'y' columns")
 			df['x'], df['y'] = self.transfrom(position=[df['x'], df['y']])
-			return df[["node", "x", "y"]].values
+			return df[["station","node", "x", "y", "z", "qx", "qy", "qz", "qw"]].values
 		except Exception as get_horn_err:
 			print(f'Get Horn Points Error: {get_horn_err}')
 			return None
@@ -239,6 +240,8 @@ def main():
 	# so.plot_map(target_map=so.map_image)
 	# so.plot_map(target_map=so.rviz_image)
 	so.plot_map(target_map=so.layout_image, target_goalpoints=so.goalpoints, target_hornpoints=so.hornpoints, trajectory_csv_path=so.csv_path)
+	# so.plot_map(target_map=so.rviz_image, target_goalpoints=so.goalpoints, target_hornpoints=so.hornpoints, trajectory_csv_path=so.csv_path)
+	# so.plot_map(target_map=so.compare_img_path, target_goalpoints=so.goalpoints, target_hornpoints=so.hornpoints, trajectory_csv_path=so.csv_path)
 	# so.plot_rviz_map()
 	# so.plot_layout_map()
 

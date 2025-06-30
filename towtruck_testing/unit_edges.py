@@ -1,5 +1,11 @@
+#!/usr/bin/env python3
 import os
 import subprocess
+from collections import defaultdict 
+import requests,json
+import csv
+import rclpy
+from rclpy.node import Node
 
 customer_uni_edges = [
 			('H01S','H01N',1),
@@ -28,9 +34,10 @@ customer_uni_edges = [
 			('P01S','P02S',1),
 			('D21S','P02S',1),
 			('D15S','P02S',1),
+			('D15S','P03S',1),
 			('P02S','P03S',1),
 			('P03S','P05S',1),
-			('P05S','P0501N',1),
+			('P03S','P0501N',1),
 			('P0501N','P0502N',1),
 			('P0502N','P0503N',1),
 			('P0503N','H01S',1),
@@ -114,14 +121,95 @@ customer_uni_edges = [
             ('D18A','P08S',1), #Like a D18A to D19S
 		]
 
-def main():
-    save_path = "/home/nontanan/ros2_ws/src/towtruck_testing/towtruck_testing/pict/21052025/segment_5m"
-    result = subprocess.run(f'ls {save_path} | grep ".csv"', shell=True, stdout=subprocess.PIPE, text=True)
-    csv_files = result.stdout.strip().split('\n') if result.stdout else []
-    csv_files = [f for f in csv_files if f.strip()]
-    print(f"CSV files found:\n{csv_files}")
-    print(f"Number of CSV files: {len(csv_files)}")
-    print(f'Number of path split: {len(customer_uni_edges)}')
+class DijsktraCalc():
+	def __init__(self,main_server_ip,main_server_port,reload=True):
+		# self.edges = defaultdict(list)
+		self.edges_list = []
+		self.weights = {}
+		edges = []
+		uni_edges = []
+		csv_path = "/home/nontanan/ros2_ws/src/towtruck_testing/resource/towtruck_path.csv"
+		if reload:
+			r = requests.get("http://"+main_server_ip+":"+main_server_port+"/path/paths",params={'page':1,'page_size':200})
+			self.paths =json.loads(r.text)['payload']
+			self.edges = self.initial_edges_from_api(self.paths)
+			# for path in self.paths:
+			# 	uni_edges.append((path['start_node'],path['to_node'],path['path_weight']))
+			# for uni_edge in uni_edges:
+			# 	self.add_edge_uni(*uni_edge)
+		else:
+			all_path = self.read_path_from_csv(file_path=csv_path)
+			self.edges = self.initial_edges(all_path)
+	
+	def add_edge_uni(self, from_node, to_node, weight):
+		#uni-directional
+		self.edges[from_node].append(to_node)
+		self.weights[(from_node, to_node)] = weight
+	
+	def read_path_from_csv(self, file_path):
+		with open(file_path, mode='r', newline='', encoding='utf-8-sig') as file:
+			reader = csv.DictReader(file)
+			return [row for row in reader]
+	
+	def initial_edges(self, all_path):
+		edges = []
+		for path in all_path:
+			edge = (path['start_node'], path['to_node'], path['path_weight'])
+			edges.append(edge)
+		return edges
+	
+	def initial_edges_from_api(self, path):
+		edges = []
+		for node in path:
+			# print(node['start_node'], node['to_node'], node['path_weight'])
+			edge = (node['start_node'], node['to_node'], node['path_weight'])
+			edges.append(edge)
+		return edges
+
+
+def dji_calc(args=None):
+	rclpy.init(args=args)
+	try:
+		dji_calc = DijsktraCalc(main_server_ip="192.168.1.114", main_server_port="5010",reload=False)
+		# dji_calc.initial_edges_from_api(dji_calc.paths)
+		# print(dji_calc.edges)
+		# print(type(dji_calc.edges))
+		for node in dji_calc.edges:
+			print(node)
+		# print(dji_calc.edges)
+		# for node in dji_calc.edges:
+		# 	print(node)
+		# print(len(dji_calc.edges_list))
+	except Exception as err:
+		print(f'Error: {err}')
+	finally:
+		rclpy.shutdown()
+
+
+def main(args=None):
+	rclpy.init(args=args)
+	try:
+		save_path = "/home/nontanan/ros2_ws/src/towtruck_testing/towtruck_testing/pict/21052025/segment_5m"
+		result = subprocess.run(f'ls {save_path} | grep ".csv"', shell=True, stdout=subprocess.PIPE, text=True)
+		csv_files = result.stdout.strip().split('\n') if result.stdout else []
+		csv_files = [f for f in csv_files if f.strip()]
+		print(f"CSV files found:\n{csv_files}")
+		print(f"Number of CSV files: {len(csv_files)}")
+		print(f'Number of path split: {len(customer_uni_edges)}')
+	except Exception as error:
+		print(f'Error: {error}')
+	finally:
+		rclpy.shutdown()
+
+# def main():
+#     save_path = "/home/nontanan/ros2_ws/src/towtruck_testing/towtruck_testing/pict/21052025/segment_5m"
+#     result = subprocess.run(f'ls {save_path} | grep ".csv"', shell=True, stdout=subprocess.PIPE, text=True)
+#     csv_files = result.stdout.strip().split('\n') if result.stdout else []
+#     csv_files = [f for f in csv_files if f.strip()]
+#     print(f"CSV files found:\n{csv_files}")
+#     print(f"Number of CSV files: {len(csv_files)}")
+#     print(f'Number of path split: {len(customer_uni_edges)}')
 
 if __name__ == "__main__":
-	main()
+	# main()
+	dji_calc()

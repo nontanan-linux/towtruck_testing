@@ -5,13 +5,16 @@ import requests
 import time
 
 class TowtruckMission(Node):
-    def __init__(self):
+    def __init__(self, main_server_ip='', main_server_port=''):
         super().__init__("TowtruckMission_Func")
         self.get_logger().info("Initial Towtruck Mission Tester")
         self.declare_parameter("main_server_ip", "192.168.1.14")
-        self.declare_parameter("main_server_port", "5000")
+        self.declare_parameter("main_server_port", "5010")
         self.main_server_ip = self.get_parameter("main_server_ip").get_parameter_value().string_value
         self.main_server_port = self.get_parameter("main_server_port").get_parameter_value().string_value
+        if main_server_ip is not '':
+            self.main_server_ip = main_server_ip
+            self.main_server_port = main_server_port
         self.server_url = f"http://{self.main_server_ip}:{self.main_server_port}"
         self.token = None
 
